@@ -1,6 +1,5 @@
 from typing import List
 from zipfile import ZipFile
-import zipfile
 from .mmap_file import MmapFile
 
 
