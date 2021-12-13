@@ -4,14 +4,10 @@ from .mmap_file import MmapFile
 
 
 class MmZipFile:
-
-    def __init__(
-        self,
-        filename: str
-    ) -> None:
-        fp = open(filename, 'r+b')
+    def __init__(self, filename: str) -> None:
+        fp = open(filename, "r+b")
         mm_file = MmapFile(fp.fileno(), 0)
-        zip_file = ZipFile(mm_file, mode='r')  # type: ignore
+        zip_file = ZipFile(mm_file, mode="r")  # type: ignore
 
         self.fp = fp
         self.mm_file = mm_file
@@ -35,11 +31,7 @@ class MmZipFile:
 
 
 class MmZipFileCollection:
-
-    def __init__(
-        self,
-        filenames: list
-    ) -> None:
+    def __init__(self, filenames: list) -> None:
         mm_zip_files = [MmZipFile(filename) for filename in filenames]
 
         index_map = {}
