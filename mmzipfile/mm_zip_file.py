@@ -1,5 +1,5 @@
 from typing import List
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo
 from .mmap_file import MmapFile
 
 
@@ -9,7 +9,7 @@ class MmZipFile:
         self,
         filename: str
     ) -> None:
-        fp = open(filename, 'rb')
+        fp = open(filename, 'r+b')
         mm_file = MmapFile(fp.fileno(), 0)
         zip_file = ZipFile(mm_file, mode='r')  # type: ignore
 
@@ -20,8 +20,15 @@ class MmZipFile:
     def open(self, name, **kwargs):
         return self.zip_file.open(name, **kwargs)
 
+    def read(self, name, **kwargs):
+        return self.zip_file.read(name, **kwargs)
+
     def namelist(self) -> List[str]:
         return self.zip_file.namelist()
+
+    @property
+    def filelist(self) -> List[ZipInfo]:
+        return self.zip_file.filelist
 
     def close(self):
         self.zip_file.close()
@@ -49,5 +56,17 @@ class MmZipFileCollection:
         index = self.index_map[name]
         return self.mm_zip_files[index].open(name, **kwargs)
 
+    def read(self, name, **kwargs):
+        index = self.index_map[name]
+        return self.mm_zip_files[index].read(name, **kwargs)
+
     def namelist(self) -> List[str]:
         return list(self.index_map.keys())
+
+    @property
+    def filelist(self) -> List[ZipInfo]:
+        return sum(f.filelist for f in self.mm_zip_files)
+
+    def close(self):
+        for mm_zip_file in self.mm_zip_files:
+            mm_zip_file.close()
